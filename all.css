@@ -1,0 +1,79 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+/* HERO SECTION */
+.hero-section {
+    height: 100vh;
+    background-image: url("images/bg.jpeg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+/* Soft blue overlay (very important) */
+.hero-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(230, 251, 250, 0.85);
+    z-index: 1;
+}
+
+/* Content above overlay */
+.hero-section .container {
+    position: relative;
+    z-index: 2;
+}
+
+/* TEXT STYLING */
+.hero-section h2 {
+    color: #0b3c5d;
+    font-weight: 700;
+}
+
+.hero-section p {
+    color: #1b1f23;
+    font-size: 1.1rem;
+}
+
+/* NAVBAR */
+.navbar {
+    background-color: #1f6fb2 !important;
+}
+
+/* BUTTONS */
+.btn-success {
+    background-color: #28a745;
+    border: none;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    color: #000;
+    border: none;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+.full-img-page {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.full-img-page img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
