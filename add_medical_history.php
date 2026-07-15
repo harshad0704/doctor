@@ -2,80 +2,168 @@
 session_start();
 include "db.php";
 
-// 🔒 Protect doctor
+// Protect Doctor
 if (!isset($_SESSION['doctor_id'])) {
     header("Location: doctor_login.php");
-    exit;
+    exit();
 }
 
 $doctor_id = $_SESSION['doctor_id'];
-$msg = "";
 
-// Handle form submission
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $patient_id = $_POST['patient_id'];
-    $diagnosis = mysqli_real_escape_string($conn, $_POST['diagnosis']);
-    $prescription = mysqli_real_escape_string($conn, $_POST['prescription']);
-
-    $sql = "INSERT INTO medical_records (patient_id, doctor_id, diagnosis, prescription, record_date)
-            VALUES ('$patient_id', '$doctor_id', '$diagnosis', '$prescription', NOW())";
-
-    if (mysqli_query($conn, $sql)) {
-        $msg = "Medical record added successfully!";
-    } else {
-        $msg = "Error adding medical record: " . mysqli_error($conn);
-    }
+if (!isset($_GET['patient_id'])) {
+    die("Patient not found.");
 }
 
-// Fetch patients for this doctor (or all patients)
-$patients = mysqli_query($conn, "SELECT * FROM patients ORDER BY name");
+$patient_id = $_GET['patient_id'];
+
+$msg = "";
+
+if(isset($_POST['save']))
+{
+    $diagnosis = mysqli_real_escape_string($conn,$_POST['diagnosis']);
+    $prescription = mysqli_real_escape_string($conn,$_POST['prescription']);
+    $remarks = mysqli_real_escape_string($conn,$_POST['remarks']);
+
+    $sql = "
+    INSERT INTO medical_records
+    (
+        patient_id,
+        doctor_id,
+        diagnosis,
+        prescription,
+        remarks
+    )
+    VALUES
+    (
+        '$patient_id',
+        '$doctor_id',
+        '$diagnosis',
+        '$prescription',
+        '$remarks'
+    )";
+
+    if(mysqli_query($conn,$sql))
+    {
+        header("Location: doctor_appointment.php?success=1");
+        exit();
+    }
+    else
+    {
+        $msg = mysqli_error($conn);
+    }
+}
 ?>
 
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>Add Medical Record</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<meta charset="UTF-8">
+
+<title>Add Medical Record</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+
 </head>
-<body>
+
+<body class="bg-light">
 
 <div class="container mt-5">
 
-    <h3 class="mb-4">Add Medical Record</h3>
+<div class="row justify-content-center">
 
-    <?php if ($msg) { ?>
-        <div class="alert alert-info"><?= $msg ?></div>
-    <?php } ?>
+<div class="col-md-8">
 
-    <div class="card p-4 shadow">
-        <form method="POST">
+<div class="card shadow">
 
-            <!-- Select Patient -->
-            <label class="form-label">Select Patient</label>
-            <select name="patient_id" class="form-control mb-3" required>
-                <option value="">-- Choose Patient --</option>
-                <?php
-                while ($row = mysqli_fetch_assoc($patients)) {
-                    echo "<option value='{$row['id']}'>{$row['name']}</option>";
-                }
-                ?>
-            </select>
+<div class="card-header bg-success text-white">
 
-            <!-- Diagnosis -->
-            <label class="form-label">Diagnosis</label>
-            <textarea name="diagnosis" class="form-control mb-3" rows="3" required></textarea>
+<h3>Add Medical Record</h3>
 
-            <!-- Prescription -->
-            <label class="form-label">Prescription</label>
-            <textarea name="prescription" class="form-control mb-3" rows="3" required></textarea>
+</div>
 
-            <button type="submit" class="btn btn-success w-100">Add Record</button>
-        </form>
-    </div>
+<div class="card-body">
 
-    <a href="doctor_dashboard.php" class="btn btn-secondary mt-3">← Back to Dashboard</a>
+<?php
+if($msg!="")
+{
+?>
+<div class="alert alert-danger">
+<?= $msg ?>
+</div>
+<?php
+}
+?>
+
+<form method="POST">
+
+<div class="mb-3">
+
+<label class="form-label">Diagnosis</label>
+
+<textarea
+name="diagnosis"
+class="form-control"
+rows="4"
+required></textarea>
+
+</div>
+
+<div class="mb-3">
+
+<label class="form-label">Prescription</label>
+
+<textarea
+name="prescription"
+class="form-control"
+rows="4"
+required></textarea>
+
+</div>
+
+<div class="mb-3">
+
+<label class="form-label">Remarks</label>
+
+<textarea
+name="remarks"
+class="form-control"
+rows="3"></textarea>
+
+</div>
+
+<button
+type="submit"
+name="save"
+class="btn btn-success">
+
+Save Medical Record
+
+</button>
+
+<a
+href="doctor_appointment.php"
+class="btn btn-secondary">
+
+Back
+
+</a>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
 
 </div>
 
 </body>
+
 </html>
